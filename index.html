@@ -1,0 +1,140 @@
+<html>
+	<head>
+		<title>Paperless Attendance</title>
+		<style>
+			body {
+				background-color: white;
+				padding-top: 2vh;
+			}
+			.wrapper {
+				background-color: beige;
+				margin: 1rem auto;
+				padding: 0.25rem 0;
+				border-radius: 8px;
+				width: fit-content;
+			}
+			h2 {
+				margin-bottom: 0;
+				padding-bottom: 0.83rem;
+				text-align: center;
+				font-family: Georgia, serif;
+				border-bottom: 2px solid;
+			}
+			form {
+				font-family: monospace, sans-serif;
+				padding: 1.5rem 2rem;
+				width: fit-content;
+				margin: 0.5rem auto;
+			}
+			hr {
+				margin-top: 1.5rem;
+				margin-bottom: 1.5rem;
+			}
+			input {
+				font-family: monospace, sans-serif;
+				font-size: 1.5rem;
+				padding: 0.25rem 0.6rem;
+				&[id="gradeId"] {
+					width: 4rem;
+					text-align: right;
+				}
+				&[id="sectionId"] {
+					width: 3rem;
+					text-align: center;
+				}
+				&[id="absenteesId"] {
+					width: 100%;
+				}
+			}
+			label {
+				font-size: 1.5rem;
+				margin-right: 0.4rem;
+				&[for="sectionId"] {
+					margin-left: 1.25rem;
+				}
+			}
+			button {
+				border-radius: 10px;
+				border: 1px solid grey;
+				display: block;
+				margin: 1rem auto;
+				padding: 0.25rem 1rem;
+				font-family: monospace, sans-serif;
+				font-size: 1.5rem;
+				&:hover {
+					background-color: yellow;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="wrapper">
+			<h2>PAPERLESS ATTENDANCE</h2>
+			<form>
+				<label for="dateId">Date </label>
+				<input type="date" id="dateId" name="dateName"><hr>
+				
+				<label for="gradeId">Grade </label>
+				<input type="number" inputmode="numeric" max="12" id="gradeId" name="gradeName">
+				
+				<label for="sectionId">Section </label>
+				<input type="text" maxlength="1" oninput="this.value = this.value.toUpperCase()" id="sectionId" name="sectionName"><hr>
+				
+				<label for="absenteesId">Absent roll nos. </label> <br><br>
+				<input type="text" inputmode="numeric" id="absenteesId" name="absenteesName">
+			</form>
+			<button id="submitId" onclick="downloadJson()">Submit</button>
+		</div>
+		
+		<script>
+			function toDateInputValue(dateObject) {
+				const local = new Date(dateObject);
+				local.setMinutes(dateObject.getMinutes() - dateObject.getTimezoneOffset());
+				return local.toJSON().slice(0,10);
+			}
+
+			document.getElementById('dateId').value = toDateInputValue(new Date());
+			
+			function download(filename, text) {
+				var element = document.createElement('a');
+				element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+				element.setAttribute('download', filename);
+				element.style.display = 'none';
+				document.body.appendChild(element);
+				element.click();
+				document.body.removeChild(element);
+			}
+
+			function downloadJson() {
+				let date = document.getElementById("dateId").value;
+				let grade = document.getElementById("gradeId").value;
+				let section = document.getElementById("sectionId").value;
+				let absentees = document.getElementById("absenteesId").value;
+				if((date=='')||(grade=='')||(section==''))
+				{
+					alert("Check the data. It has not been filled correctly.");
+					return;
+				}
+				if(parseInt(grade)>12){
+					alert("Error: The grade entered is over 12.")
+					return;
+				}
+				if(parseInt(grade)<1){
+					alert("Error: The grade entered is less than 1.")
+					return;
+				}
+				if(!(/^[a-zA-Z]$/.test(section))){
+					alert("Error: Please re-enter section.")
+					return;
+				}
+				let jsonData = {
+					"date": date,
+					"grade": grade,
+					"section": section,
+					"absentees": absentees
+				}
+				download(`${grade}${section} ${date}.json`,JSON.stringify(jsonData)); 
+			}
+		</script>
+	</body>
+<html>
